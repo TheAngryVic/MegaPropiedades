@@ -2,6 +2,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import {auth, db,firebase} from '../firebase'
 import router from '../router'
+import Axios from "axios";
+
 
 Vue.use(Vuex)
 
@@ -27,8 +29,12 @@ export default new Vuex.Store({
       
     },
     error:null,
-    msg:null,
-    UF:null
+    msg:{
+      tipo:'',
+      mensaje:''
+    },
+    UF:null,
+    ubi:null,    
     
   },
   mutations: {
@@ -52,13 +58,19 @@ export default new Vuex.Store({
     },
     setUF(state,payload){
       state.UF = payload
+    },
+    setUbi(state,payload){
+      state.ubi = payload
     }
   },
   actions: {
     async getUF({commit}){
       try {
-          const res = await fetch('https://mindicador.cl/api/uf')
-          const db = await res.json()
+          // const res = await fetch('https://mindicador.cl/api/uf')
+          // const db = await res.json()
+          // commit('setUF',db)
+          let res = await Axios.get('https://mindicador.cl/api/uf');          
+          let db = await res.data.serie[0].valor
           commit('setUF',db)
       } catch (error) {
         console.log(error)
@@ -67,14 +79,17 @@ export default new Vuex.Store({
     async getPropiedades({commit}){
       try {
         
-        const res = await fetch('https://mega-8e8b9-default-rtdb.firebaseio.com/propiedades.json')
-        const db = await res.json()
+        // const res = await fetch('https://mega-8e8b9-default-rtdb.firebaseio.com/propiedades.json')
+        // const db = await res.json()
+        const res = await  Axios.get('https://mega-8e8b9-default-rtdb.firebaseio.com/propiedades.json')
+        const db = (res.data)
+      
         const arrayDatos=[]
 
         for(let id in db){
           arrayDatos.push(db[id])
-        }
-        // console.log(arrayDatos)
+         }
+        console.log(arrayDatos)
         commit('setPropiedades', arrayDatos)
       } catch (error) {
         console.log(error)
@@ -84,49 +99,82 @@ export default new Vuex.Store({
     async getPropiedad({commit}, idProp){
 
       try {
-        const res = await fetch(`https://mega-8e8b9-default-rtdb.firebaseio.com/propiedades/${idProp}.json`)
-        const db = await res.json()
+        // const res = await fetch(`https://mega-8e8b9-default-rtdb.firebaseio.com/propiedades/${idProp}.json`)
+        // const db = await res.json()       
+        // commit('setPropiedad',db)
+        const res = await Axios.get(`https://mega-8e8b9-default-rtdb.firebaseio.com/propiedades/${idProp}.json`);
+        const db = await res.data;
         commit('setPropiedad',db)
       } catch (error) {
         console.log(error)
       }
-      // db.collection('Propiedades').doc(idProp).get().then(
-      //   doc =>{
-      //     console.log(doc.id)
-      //     console.log(doc.data())
-      //     let propiedad = doc.data()
-      //     propiedad.id = doc.id
-      //     commit('setPropiedad',propiedad)
-      //   }        
-      // )
-      
+            
     },
-    async createPropiedad({commit}, propiety,state){
-      // db.collection('Propiedades').add({       
-      //   Direccion: propiety.direccion,
-      //   Nombre: propiety.nombre,
-      //   Ubicacion: propiety.ubicacion
-      // }).then(doc=>{
-      //   console.log(doc.id)        
-      // })
-      
-      try {
-        const res = await fetch(`https://mega-8e8b9-default-rtdb.firebaseio.com/propiedades/${propiety.Id}.json?auth=${this.state.token}`,{
-          method:'PUT',
+    async createPropiedad({commit}, propiety,state){   
+      try {    
+        let res = await Axios.put(`https://mega-8e8b9-default-rtdb.firebaseio.com/propiedades/${propiety.Id}.json?auth=${this.state.token}`,{
           headers:{
-            'Content-Type':'application/json'
-          },
+                 'Content-Type':'application/json'
+               },
           body: JSON.stringify(propiety)
-        })
-
-        const dataDB = await res.json()
-        console.log(dataDB)
-        commit('setMsg','Se ha agregado la propiedad con exito')
+        }).then(
+          response=>{
+            let status = response.status
+            if (status===200) {
+              commit('setMsg',{
+                tipo:'success',
+                mensaje:'Se ha agregado la propiedad con exito!'
+              })
+            }
+          }
+        ).catch(error => {
+          alert("error")
+          let errorStatus = error.response.status
+        
+          if (errorStatus === 401) {
+            commit('setMsg',{
+              tipo:'error',
+              mensaje:'No se ha podido leer el Token, por favor vuelva a Autenticarse'
+            })
+          }
+        }
+          )        
+        // commit('setMsg','Se ha agregado la propiedad con exito')
 
       } catch (error) {
-        commit('setError',error)
+        console.log('El error es' + error)
       }
     },
+    async updatePropiedad({commit},propiety){
+      try {
+        const res = await Axios.patch(`https://mega-8e8b9-default-rtdb.firebaseio.com/propiedades/${propiety.Id}.json?auth=${this.state.token}`,
+          JSON.stringify(propiety)
+        ).then(
+          response=>{
+            let status = response.status
+            if (status===200) {
+              commit('setMsg',{
+                tipo:'success',
+                mensaje:'Se ha modificado la propiedad con exito!'
+              })
+            }
+          }
+        ).catch(error => {
+          let errorStatus = error.response.status
+        
+          if (errorStatus === 401) {
+            commit('setMsg',{
+              tipo:'error',
+              mensaje:'No se ha podido leer el Token, por favor vuelva a Autenticarse'
+            })
+          }
+        }
+          ) 
+      } catch (error) {
+        console.log(error)
+      }
+    } 
+    ,
     async accesoUsuario({commit},usuario){
       auth.signInWithEmailAndPassword(usuario.email, usuario.password)
       .then(res=>{
@@ -181,7 +229,45 @@ export default new Vuex.Store({
     },
     detectarUser({commit},usuario){
       commit('setUser',usuario)
-    },   
+    },
+    async geoloc({commit}, param ){
+      try {
+        // const direccion = param
+        // const direccionClean = direccion.replace(/\s/g,'+')
+        // const res = await fetch('https://geocode.search.hereapi.com/v1/geocode?q='+direccionClean+'&apiKey=b0DUqFdYILt9iecy7LHmb24tbQYYSeP3kLYS4nkHjLE')
+        // const json = await res.json()
+        // const db=json.items[0].position
+
+        let direccion = param;
+        let direccionClean = direccion.replace(/\s/g,'+')
+        let res = await Axios.get('https://geocode.search.hereapi.com/v1/geocode?q='+direccionClean+'&apiKey=b0DUqFdYILt9iecy7LHmb24tbQYYSeP3kLYS4nkHjLE')
+        let db=res.data.items[0].position;
+
+        commit('setUbi',db)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    clearPropiedad({commit}){
+      try {
+        let propiedadClean = {     Id:'',
+        Direccion: '',
+        Nombre: '',
+        Ubicacion: '',
+        Categoria: null,
+        nrooms:null,
+        nbano:null,
+        m2:null,
+        precio:null,
+        fotos:[],
+        timestamp: null}
+        commit('setPropiedad',propiedadClean)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    
+
   },
   getters:{
     existeUser(state){
@@ -193,5 +279,6 @@ export default new Vuex.Store({
     },
   },
   modules: {
+
   }
 })

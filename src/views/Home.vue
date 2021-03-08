@@ -33,6 +33,7 @@
              </v-row>
            </v-card-text>
             <router-link :to="{name:'Propiedad', params:{id:p.Id}}"><v-btn color="indigo darken-2 white--text" block>Ver</v-btn> </router-link> 
+            <router-link v-if="existeUser" :to="{name:'Editar', params:{id:p.Id}}"><v-btn color="indigo lighten-1 white--text" block>Editar</v-btn> </router-link> 
           </v-card>
           </v-col>
         </v-row>
@@ -81,7 +82,7 @@
 <script>
 // @ is an alias to /src
 import Carr from "../components/Carrusel";
-import {mapActions, mapState} from "vuex";
+import {mapActions, mapState,mapGetters} from "vuex";
 
 export default {
   name: 'Home',
@@ -90,16 +91,18 @@ export default {
   },
   async created(){    
     await this.getPropiedades();
-    await this.getUF();
-    console.log()
+    
+   
     
   },
   methods:{
      ...mapActions(['getPropiedades','getUF'])
   },
   computed:{
-     ...mapState(['propiedades','UF'])
-  }
+     ...mapState(['propiedades','UF']),
+     ...mapGetters(['existeUser'])
+  },
+ 
 
 }
 </script>

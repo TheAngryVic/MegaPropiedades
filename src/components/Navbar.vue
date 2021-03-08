@@ -8,6 +8,7 @@
                 <v-tabs right >
                     <v-tab to="/">Inicio</v-tab>
                     <v-tab to="/about">¿Quienes somos?</v-tab>
+                    <v-tab to="/listado">Listado</v-tab>
                     <v-tab to="/admin" v-if="existeUser">Admin</v-tab>
                     <v-tab v-if="existeUser"><v-btn @click="cerrar" color="red darken-4 white--text">Cerrar Sesion</v-btn></v-tab>
                 </v-tabs>                   

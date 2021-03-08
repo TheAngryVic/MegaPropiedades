@@ -6,8 +6,9 @@
             <v-col cols="12" sm="12" md="4">
               <v-card-text class="text-left">
                 <p class="indigo--text text-h5">{{propiedad.Categoria}}</p>
+                <p class="indigo--text text-h5">{{propiedad.comuna}}</p>
                 <p class="indigo--text text-h6">UF {{propiedad.precio}}</p>
-                <p class="red--text  lighten-1 subtitle-1">${{(propiedad.precio)*this.UF.serie[0].valor}}</p>
+                <p class="red--text  lighten-1 subtitle-1">${{(propiedad.precio)*this.UF}}</p>
                 <p class="indigo--text subtitle-1"><v-icon color="indigo darken-2">mdi-map-marker</v-icon>{{propiedad.Direccion}}</p>
                 <p class="indigo--text subtitle-1">{{propiedad.m2}} m2 sup. terreno</p>                
                 <p class="indigo--text subtitle-1"><v-icon color="indigo darken-2">mdi-bed</v-icon> {{propiedad.nrooms}} Dormitorios</p>                
@@ -27,25 +28,22 @@
               <p class="black--text ">{{propiedad.descripcion}}</p>
           </v-card-text>
           <v-card-text>
-              <div id="map">
-                  
-              </div>
+              <MapaHere ref="hereMap" :center="propiedad.Ubicacion"></MapaHere>
+              <!-- <Mapa ref="map" :latitude="propiedad.Ubicacion.lat" :longitude="propiedad.Ubicacion.lng"></Mapa> -->
           </v-card-text>
       </v-card>
   </v-container>
 </template>
 
 <script>
+
 import { mapActions, mapState } from 'vuex'
-import Carr from "../components/Carrusel";
+import MapaHere from "../components/mapHere";
+import Mapa from "../components/map";
+// import Mapa from "../components/map";
 import VueGallerySlideshow from 'vue-gallery-slideshow'
 export default {
-    name:'Propiedad',
-     async created(){
-        await this.getPropiedad(this.id)
-        await this.getUF()
-        console.log(this.propiedad.fotos[0])
-    },
+    name:'Propiedad',     
     data(){
         return{
             id: this.$route.params.id,
@@ -53,24 +51,37 @@ export default {
         }
     },
     components:{
-        Carr,
-        VueGallerySlideshow
+        MapaHere,
+        VueGallerySlideshow,
+        Mapa
     },
     computed:{
         ...mapState(['propiedad','UF'])
     },
     methods:{
-        ...mapActions(['getPropiedad','getUF']),
+        ...mapActions(['getPropiedad','getUF','clearPropiedad']),
          onClick(i) {
         this.index = i;
-        }
+        },       
     },
-  
+    async created(){
+        // await this.clearPropiedad();
+        this.getPropiedad(this.id);
+        this.getUF();
+    }
+    ,
+    mounted(){       
+        
+        let map = this.$refs.hereMap;        
+        map.dropMarker(this.propiedad.Ubicacion)
+
+    },
+         
 }
 </script>
 
 <style >
-
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 .img{
     width: 200px;
     height: 200px;
@@ -78,5 +89,8 @@ export default {
     cursor: pointer;
     margin: 10px;
     border-radius: 3px;
+}
+p{
+font-family: 'Open Sans', sans-serif;
 }
 </style>

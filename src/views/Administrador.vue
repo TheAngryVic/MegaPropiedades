@@ -2,10 +2,13 @@
  <v-container grid-list-xs>
    <p class="text-h3 text-center indigo--text lighten-4" >Agregar propiedad</p>    
         <form class="mt-3" @submit.prevent="procesarFormulario(propiedad)">
-          <v-alert  outlined type="success"   text :value="alert">
-            {{this.msg}}
+          <v-alert  outlined :type="this.msg.tipo"   text :value="alert">
+            {{this.msg.mensaje}}
           </v-alert> 
-          <Formulario :propiedad="propiedad"/>         
+          <div>
+
+          </div>
+          <Formulario botonText="Agregar Propiedad" :propiedad="propiedad" />         
           <v-row>
             <v-spacer></v-spacer>
             <v-col cols="12" sm="12" md="4" class="my-5" >
@@ -37,17 +40,19 @@
  </v-container>
 </template>
 
+
 <script>
 import { mapActions, mapState } from 'vuex'
 import {firebase, auth,storage} from "../firebase";
 import Formulario from "../components/Form";
+import Swal from 'vue-sweetalert2'
 
 const shortid = require('shortid');
 
 export default {
   name:'Administracion',
   computed:{
-    ...mapState(['usuario','token','error','msg']),
+    ...mapState(['usuario','token','error','msg','ubi']),
     bloquear(){
       if (this.files) {
         return false
@@ -68,13 +73,15 @@ export default {
         m2:null,
         timestamp: null,        
         descripcion:null,
+        comuna:null,
         fotos:[],
       },
       file:null,
       alert:false,
       alert2:false,
       msF:null,
-      loading:null
+      loading:null,
+      comunasSantiago:[]    
 
 
     }
@@ -84,7 +91,7 @@ export default {
     Formulario
   },
   methods:{
-    ...mapActions(['createPropiedad']),
+    ...mapActions(['createPropiedad','geoloc']),
     async procesarFormulario(){
       //validaciones y tal
       // console.log(this.usuario.uid)
@@ -99,7 +106,19 @@ export default {
 
       //Se llama a la accion de la Store pasandole propiedad
       // console.log(this.propiedad)
-      await this.createPropiedad(this.propiedad);
+      try {
+        await this.geoloc(this.propiedad.Direccion);
+        this.propiedad.Ubicacion = this.ubi
+        
+      } catch (error) {
+        console.log(error)
+      }
+      // console.log(this.propiedad)
+      try {
+        await this.createPropiedad(this.propiedad);     
+      } catch (error) {
+        
+      }
 
       this.alert= true
     },
@@ -167,8 +186,11 @@ export default {
       this.alert=false,
       this.alert2=false,
       this.msF= null
-    }
-  }
+    },    
+
+  },
+ 
 }
 </script>
+
 

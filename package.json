@@ -7,11 +7,15 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@google-cloud/storage": "^5.8.1",
+    "axios": "^0.21.1",
     "firebase": "^8.2.7",
     "shortid": "^2.2.16",
     "vue": "^2.6.11",
+    "vue-axios": "^3.2.4",
     "vue-gallery-slideshow": "^1.5.2",
     "vue-router": "^3.2.0",
+    "vue-sweetalert2": "^4.2.0",
     "vuetify": "^2.4.0",
     "vuex": "^3.4.0"
   },
@@ -19,10 +23,12 @@
     "@vue/cli-plugin-router": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
+    "google-fonts-webpack-plugin": "^0.4.4",
     "sass": "^1.32.0",
     "sass-loader": "^10.0.0",
     "vue-cli-plugin-vuetify": "~2.1.0",
     "vue-template-compiler": "^2.6.11",
+    "vue2-google-maps": "^0.10.7",
     "vuetify-loader": "^1.7.0"
   }
 }

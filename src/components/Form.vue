@@ -5,6 +5,7 @@
         <v-text-field         
           label="Dirección" outlined
           v-model="propiedad.Direccion" > </v-text-field>
+         
         <v-text-field         
           label="Nombre de Propiedad" outlined
           v-model="propiedad.Nombre" ></v-text-field>
@@ -54,20 +55,37 @@
         rows="3"
         row-height="15"
         v-model="propiedad.descripcion">
-
         </v-textarea>
+         <v-autocomplete
+          filled
+          :items="comunas"
+          v-model="propiedad.comuna"
+        >
+
+        </v-autocomplete>
       </v-col>
-      <v-btn type="submit" :disabled="bloquear" block color="success">Agregar</v-btn>  
+      <v-btn type="submit" :disabled="bloquear" block color="success">{{botonText}}</v-btn>  
     </v-row>
   </v-container>
 </template>
 
+
+
 <script>
+import { mapActions, mapState } from 'vuex'
+import datos from "../../public/apiRegion.json";
 export default {
+  data(){
+    return{
+      comunas:[]
+    }
+  },
   props:{
     propiedad:Object,
+    botonText: String   
   },
   computed:{
+    
     bloquear(){
       if(!this.propiedad.Direccion){
         return true
@@ -95,7 +113,23 @@ export default {
       }
       return false
     }
+
+
   },
+  methods:{
+    cargarComunas(){
+      let data = datos.comunas
+
+      data.forEach(element => {
+        this.comunas.push(element.name)
+      });
+    }
+  },
+  created(){
+    this.cargarComunas()
+    
+  }
+  
  
   
 }

@@ -43,6 +43,12 @@ const router = new VueRouter({
       component: () => import('../views/Autenticar.vue')
       
     },
+    {
+      path: '/listado',
+      name: 'ListadoPropiedades',   
+      component: () => import('../views/ListadoPropiedades.vue')
+      
+    },
   
     
   ]

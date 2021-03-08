@@ -9,7 +9,10 @@
     </v-main>   
   </v-app>
 </template>
-
+  <script
+      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=&v=weekly"
+      async
+    ></script>
 <script>
 import { mapActions } from 'vuex';
 import  Navbar  from "./components/Navbar";
@@ -29,3 +32,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+body{
+  font-family: 'Roboto', sans-serif;
+}
+</style>
