@@ -60,9 +60,12 @@
           filled
           :items="comunas"
           v-model="propiedad.comuna"
-        >
-
-        </v-autocomplete>
+        ></v-autocomplete>
+         <v-autocomplete
+          filled
+          :items="TPropiedad"
+          v-model="propiedad.Tpropiedad"
+        ></v-autocomplete>
       </v-col>
       <v-btn type="submit" :disabled="bloquear" block color="success">{{botonText}}</v-btn>  
     </v-row>
@@ -77,7 +80,8 @@ import datos from "../../public/apiRegion.json";
 export default {
   data(){
     return{
-      comunas:[]
+      comunas:[],
+      TPropiedad:['Casa','Terreno','Departamento'],
     }
   },
   props:{

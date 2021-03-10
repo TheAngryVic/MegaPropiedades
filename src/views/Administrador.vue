@@ -74,6 +74,7 @@ export default {
         timestamp: null,        
         descripcion:null,
         comuna:null,
+        Tpropiedad:null,
         fotos:[],
       },
       file:null,
